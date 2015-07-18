@@ -6,13 +6,35 @@
 
 
 <script id="vertex-shader" type="x-shader/x-vertex">
-attribute vec4 vPosition;
-//attribute float rotation;
+uniform float fRotation;
 
-void
-main()
+attribute vec4 vPosition;
+
+vec4 rotate(vec4 v4Init, float theta)
 {
-    gl_Position = vPosition;
+    float x = 0.0;
+    float y = 0.0;
+    float z = -1.0; //left handed coordinate system
+
+    float angle = theta * length(v4Init);    //distance(v4Init, vec4(0));
+
+    float c = cos( radians(angle) );
+    float omc = 1.0 - c;
+    float s = sin( radians(angle) );
+
+    mat4 matRot = mat4(
+    vec4( x*x*omc + c,   x*y*omc - z*s, x*z*omc + y*s, 0.0 ),
+    vec4( x*y*omc + z*s, y*y*omc + c,   y*z*omc - x*s, 0.0 ),
+    vec4( x*z*omc - y*s, y*z*omc + x*s, z*z*omc + c,   0.0 ),
+    vec4(0, 0, 0, 1)
+    );
+
+    return matRot * v4Init;
+}
+
+void main()
+{
+    gl_Position = rotate(vPosition, fRotation);
 }
 </script>
 
@@ -39,7 +61,7 @@ main()
         5
     </div>
     <div>
-        &theta; = <input id="theta" type="text" maxlength="10" size="10"  /> &deg;
+        &theta; = <input id="theta" type="text" maxlength="10" size="10"  /> &deg;  <input id="theta_slider" type="range" min="0" max="360" step="1" value="0" />
     </div>
 <canvas id="gl-canvas" width="512" height="512">
 Oops ... your browser doesn't support the HTML5 canvas element

@@ -6,9 +6,12 @@ var gl;
 var points = [];
 
 var NumTimesToSubdivide = 5;
-var theta;
+var theta = 0;
 
 var bufferId;
+var thetaId;
+
+var program;
 
 window.onload = function init()
 {
@@ -25,7 +28,7 @@ window.onload = function init()
 
     //  Load shaders and initialize attribute buffers
 
-    var program = initShaders( gl, "vertex-shader", "fragment-shader" );
+    program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
     // Load the data into the GPU
@@ -37,7 +40,7 @@ window.onload = function init()
 
     var vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
+    gl.enableVertexAttribArray(vPosition);
 
     var elmSlider = document.getElementById("slider");
     elmSlider.onchange = function (event) {
@@ -48,13 +51,29 @@ window.onload = function init()
     elmSlider.value = NumTimesToSubdivide;
 
     var elmTheta = document.getElementById("theta");
+    var elmThetaSlider = document.getElementById("theta_slider");
+
     elmTheta.onchange = function (event) {
         var temp = parseInt(event.target.value);
-        if (isNaN(temp))
+        if (isNaN(temp)) {
+            elmTheta.value = theta;
             return;
+        }
         theta = temp;
+        elmThetaSlider = theta;
         render();
     }
+    elmTheta.onblur = function (event) {
+        elmTheta.value = theta;
+        elmThetaSlider.value = theta;
+    }
+    elmThetaSlider.onchange = function (event) {
+        theta = parseInt(event.target.value);
+        elmTheta.value = theta;
+        render();
+    }
+
+    elmTheta.value = theta;
 
     render();
 };
@@ -103,6 +122,8 @@ function render()
     divideTriangle(vertices[0], vertices[1], vertices[2], NumTimesToSubdivide);
 
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(points));
+
+    gl.uniform1f(gl.getUniformLocation(program, "fRotation"), theta);
 
     gl.clear( gl.COLOR_BUFFER_BIT );
     gl.drawArrays( gl.TRIANGLES, 0, points.length );
