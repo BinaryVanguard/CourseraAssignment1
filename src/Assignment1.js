@@ -60,7 +60,7 @@ window.onload = function init()
             return;
         }
         theta = temp;
-        elmThetaSlider = theta;
+        elmThetaSlider.value = theta;
         render();
     }
     elmTheta.onblur = function (event) {
