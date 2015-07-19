@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>2D Sierpinski Gasket</title>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+uniform float fRotation;
+
+attribute vec4 vPosition;
+
+vec4 rotate(vec4 v4Init, float theta)
+{
+    float x = 0.0;
+    float y = 0.0;
+    float z = -1.0; //left handed coordinate system
+
+    float angle = theta * length(v4Init);    //distance(v4Init, vec4(0));
+
+    float c = cos( radians(angle) );
+    float omc = 1.0 - c;
+    float s = sin( radians(angle) );
+
+    mat4 matRot = mat4(
+    vec4( x*x*omc + c,   x*y*omc - z*s, x*z*omc + y*s, 0.0 ),
+    vec4( x*y*omc + z*s, y*y*omc + c,   y*z*omc - x*s, 0.0 ),
+    vec4( x*z*omc - y*s, y*z*omc + x*s, z*z*omc + c,   0.0 ),
+    vec4(0, 0, 0, 1)
+    );
+
+    return matRot * v4Init;
+}
+
+void main()
+{
+    gl_Position = rotate(vPosition, fRotation);
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+void
+main()
+{
+    gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+}
+</script>
+
+<script type="text/javascript" src="./Common/webgl-utils.js"></script>
+<script type="text/javascript" src="./Common/initShaders.js"></script>
+<script type="text/javascript" src="./Common/MV.js"></script>
+<script type="text/javascript" src="./src/Assignment1.js"></script>
+</head>   
+
+<body>
+    <div>
+        recursive steps  0 <input id="slider" type="range"
+                                  min="0" max="5" step="1" value="0" />
+        5
+    </div>
+    <div>
+        &theta; = <input id="theta" type="text" maxlength="10" size="10"  /> &deg;  <input id="theta_slider" type="range" min="0" max="360" step="1" value="0" />
+    </div>
+<canvas id="gl-canvas" width="512" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>
